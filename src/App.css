@@ -9,3 +9,12 @@ h1 {
   padding: 120px 0 20px 0;
   text-align: center;
 }
+
+input[type='text'] {
+  padding: 15px 5px;
+  width: 70%;
+}
+button {
+  padding: 15px 5px;
+  width: 25%;
+}

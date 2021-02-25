@@ -1,6 +1,6 @@
 import React from 'react';
 import './Cards.css';
-const cards = ({ title, data, src }) => {
+const card = ({ title, data, src }) => {
   const numberWithCommas = (x) => {
     if (!x) {
       return;
@@ -19,4 +19,4 @@ const cards = ({ title, data, src }) => {
     </div>
   );
 };
-export default cards;
+export default card;

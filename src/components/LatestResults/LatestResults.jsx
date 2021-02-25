@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import Cards from '../../UI/Cards/Cards';
+import Card from '../../UI/Cards/Card';
 import ConfirmedLogo from '../../assets/images/confirmed.svg';
 import RecoveredLogo from '../../assets/images/recovered.png';
 import CriticalLogo from '../../assets/images/critical.svg';
 import DeadLogo from '../../assets/images/dead.svg';
+import ResultInformation from '../ResultInformation/ResultInformation';
 const LatestResults = () => {
   const [results, setResults] = useState({});
+  const [error, setError] = useState(null);
   useEffect(() => {
     const options = {
       method: 'GET',
@@ -25,22 +27,27 @@ const LatestResults = () => {
       })
       .catch(function (error) {
         console.error(error);
+        setError('An Error occured! Please try again in a few seconds');
       });
   }, []);
-
-  return (
+  let display = (
     <section>
-      <p style={{ fontSize: '1.2rem', width: '80%', margin: '0 auto' }}>
-        World's Latest Total Results as of:{' '}
-        <span style={{ fontWeight: 'bold' }}>{results.lastUpdate}</span>
-      </p>
+      <ResultInformation date={results.lastUpdate} />
       <div className="CardsContainer">
-        <Cards src={ConfirmedLogo} title="Confirmed" data={results.confirmed} />
-        <Cards src={RecoveredLogo} title="Recovered" data={results.recovered} />
-        <Cards src={CriticalLogo} title="Critical" data={results.critical} />
-        <Cards src={DeadLogo} title="Deaths" data={results.deaths} />
+        <Card src={ConfirmedLogo} title="Confirmed" data={results.confirmed} />
+        <Card src={RecoveredLogo} title="Recovered" data={results.recovered} />
+        <Card src={CriticalLogo} title="Critical" data={results.critical} />
+        <Card src={DeadLogo} title="Deaths" data={results.deaths} />
       </div>
     </section>
   );
+  if (error) {
+    display = (
+      <div>
+        <h2 style={{color: 'red', textAlign: 'center'}}>An Error Occured. Please try again in a few seconds...</h2>
+      </div>
+    );
+  }
+  return display;
 };
 export default LatestResults;

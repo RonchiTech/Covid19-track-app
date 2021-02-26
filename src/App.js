@@ -97,7 +97,7 @@ const App = () => {
             {results.country ? results.country : "World's"}
           </span>{' '}
           Latest Total Results as of:{' '}
-          <span style={{ fontWeight: 'bold' }}>{results.date}</span>
+          <span style={{ fontWeight: 'bold' }}>{results.lastUpdate}</span>
         </p>
         <div className="CardsContainer">
           <Card

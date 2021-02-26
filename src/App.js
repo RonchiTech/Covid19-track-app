@@ -1,51 +1,104 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './App.css';
-import LatestResult from './components/LatestResults/LatestResults';
-import Card from './UI/Cards/Card';
+import Card from './UI/Cards/Cards';
 import ConfirmedLogo from './assets/images/confirmed.svg';
 import RecoveredLogo from './assets/images/recovered.png';
 import CriticalLogo from './assets/images/critical.svg';
 import DeadLogo from './assets/images/dead.svg';
-import ResultInformation from './components/ResultInformation/ResultInformation';
 import axios from 'axios';
 const App = () => {
-  const [country, setCountry] = useState('');
-  const [results, setResults] = useState(null);
-  const [error, setError] = useState(false);
-  const SearchCountry = () => {
+  const [country, setCountry] = useState(null);
+  const [results, setResults] = useState({ country: null });
+  // const [searchingCountry, setSearchingCountry] = useState(false);
+
+  const [errorMessage, setErrorMessage] = useState(null);
+
+  useEffect(() => {
     const options = {
       method: 'GET',
-      url: 'https://covid-19-data.p.rapidapi.com/country',
-      params: { name: country },
+      url: 'https://covid-19-data.p.rapidapi.com/totals',
       headers: {
         'x-rapidapi-key': '14f13eef1bmshbb8ed92c27c1b82p144eb7jsnb0ca4f81a223',
         'x-rapidapi-host': 'covid-19-data.p.rapidapi.com',
       },
     };
-
     axios
       .request(options)
       .then(function (response) {
+        console.log(response.data[0]);
         setResults(response.data[0]);
-        setError(false);
       })
       .catch(function (error) {
         console.error(error);
-        setError(true);
       });
-  };
-  let display = <LatestResult />;
-  if (!country) {
-    display = <LatestResult />;
-  }
+  }, []);
 
-  if (!!results) {
+  const SearchCountry = () => {
+    if (country) {
+      const options = {
+        method: 'GET',
+        url: 'https://covid-19-data.p.rapidapi.com/country',
+        params: { name: country },
+        headers: {
+          'x-rapidapi-key':
+            '14f13eef1bmshbb8ed92c27c1b82p144eb7jsnb0ca4f81a223',
+          'x-rapidapi-host': 'covid-19-data.p.rapidapi.com',
+        },
+      };
+      axios
+        .request(options)
+        .then(function (response) {
+          console.log(response.data[0]);
+
+          if (!response.data[0]) {
+            setErrorMessage('Country not found...');
+          } else {
+            setResults(response.data[0]);
+            setErrorMessage(null);
+          }
+        })
+        .catch(function (error) {
+          console.error(error);
+          setErrorMessage(
+            'An error occured. Please try again in a few seconds.'
+          );
+        });
+    } else if (country === '') {
+      const options = {
+        method: 'GET',
+        url: 'https://covid-19-data.p.rapidapi.com/totals',
+        headers: {
+          'x-rapidapi-key':
+            '14f13eef1bmshbb8ed92c27c1b82p144eb7jsnb0ca4f81a223',
+          'x-rapidapi-host': 'covid-19-data.p.rapidapi.com',
+        },
+      };
+      axios
+        .request(options)
+        .then(function (response) {
+          console.log(response.data[0]);
+          setResults(response.data[0]);
+          setErrorMessage(null);
+        })
+        .catch(function (error) {
+          console.error(error);
+          setErrorMessage(
+            'An error occured. Please try again in a few seconds.'
+          );
+        });
+    }
+  };
+  let display;
+  if (results) {
     display = (
-      <section>
-        <ResultInformation
-          date={results.lastUpdate}
-          country={results.country}
-        />
+      <>
+        <p style={{ fontSize: '1.2rem', width: '80%', margin: '0 auto' }}>
+          <span style={{ fontWeight: 'bold' }}>
+            {results.country ? results.country : "World's"}
+          </span>{' '}
+          Latest Total Results as of:{' '}
+          <span style={{ fontWeight: 'bold' }}>{results.date}</span>
+        </p>
         <div className="CardsContainer">
           <Card
             src={ConfirmedLogo}
@@ -60,17 +113,16 @@ const App = () => {
           <Card src={CriticalLogo} title="Critical" data={results.critical} />
           <Card src={DeadLogo} title="Deaths" data={results.deaths} />
         </div>
-      </section>
+      </>
     );
-    if (error) {
+    if (errorMessage) {
       display = (
         <div>
-          <h2>Country not found...</h2>
+          <h2 style={{ color: 'pink' }}>{errorMessage}</h2>
         </div>
       );
     }
   }
-
   return (
     <>
       <main className="Main">
